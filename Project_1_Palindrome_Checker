@@ -1,0 +1,28 @@
+function palindrome(str) {
+  // Good luck!
+  /*
+  // lower-case and remove all non-alphanumeric characters from string, split into an array
+  let newStr = str.toLowerCase().replace(/[\W_]/g, '').toString();
+  let origStrArr = newStr.split('');
+
+  ?? ^This part works as expected
+  
+  // make the reversed copy of the original, lowercase array-ed string
+  let reversedCopy = [];
+  for (let j = 0; j < origStrArr.length; j++) {
+    reversedCopy[origStrArr.length - 1 - j] = origStrArr[j];
+  }
+  ?? ^This part works as expected
+  
+  // SHOULD iterate through arrays and compare character by character, returning if true for all
+  for (let i = 0; i < origStrArr.length; i++) {
+    return origStrArr[i] === reversedCopy[i];
+  }
+} */
+  ?? ^This part IS NOT working
+  
+  // this part, a suggested solution on the FCC forum, works
+  return str.toLowerCase().replace(/[\W_]/g, '') === str.toLowerCase().replace(/[\W_]/g, '').split('').reverse().join('');
+}
+
+palindrome("eye");
