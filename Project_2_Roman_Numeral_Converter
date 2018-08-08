@@ -1,0 +1,72 @@
+function convertToRoman(num) {
+  let storageArr = [];
+
+  while (num >= 1000) {
+    storageArr.push('M');
+    num -= 1000;
+  }
+
+  while (num >= 900) {
+    storageArr.push('C', 'M');
+    num -= 900;
+  }
+
+  while (num >= 500) {
+    storageArr.push('D');
+    num -= 500;
+  }
+
+  while (num >= 400) {
+    storageArr.push('C', 'D');
+    num -= 400;
+  }
+
+  while (num >= 100) {
+    storageArr.push('C');
+    num -= 100;
+  }
+
+  while (num >= 90) {
+    storageArr.push('X', 'C');
+    num -= 90;
+  }
+
+  while (num >= 50) {
+    storageArr.push('L');
+    num -= 50;
+  }
+
+  while (num >= 40) {
+    storageArr.push('X', 'L');
+    num -= 40;
+  }
+
+  while (num >= 10) {
+    storageArr.push('X');
+    num -= 10;
+  }
+
+  while (num >= 9) {
+    storageArr.push('I', 'X');
+    num -= 9;
+  }
+
+  while (num >= 5) {
+    storageArr.push('V');
+    num -= 5;
+  }
+
+  while (num >= 4) {
+    storageArr.push('I', 'V');
+    num -= 4;
+  }
+
+  while (num >= 1) {
+    storageArr.push('I');
+    num -= 1;
+  }
+
+  return storageArr.join('');
+}
+
+convertToRoman(36);
