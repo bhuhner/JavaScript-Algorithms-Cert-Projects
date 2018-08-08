@@ -1,0 +1,26 @@
+function rot13(str) { // LBH QVQ VG!
+  // create dummy string to concat values to
+  let newStr = '';
+
+  // set up for loop to analyze ascii codes for each char
+  for (let i = 0; i < str.length; i++) {
+    let ascii = str.charCodeAt(i);
+    
+    // if char is at start of alphabet, add 13 and add new char to dummy string
+    if (ascii >= 65 && ascii <= 77) {
+        ascii += 13;
+        newStr = newStr + String.fromCharCode(ascii);
+    
+    // if char is at the end of the alphabet, measure how far from end, then restart counting 13 places from start of alphabet
+    } else if (ascii > 77 && ascii <= 90) {
+        ascii = 13 - (90 - ascii) + 64;
+        newStr = newStr + String.fromCharCode(ascii);
+        
+    // if it's any non-letter character, transfer it to the dummy string
+    } else {
+        newStr = newStr + str.charAt(i);
+    }
+  }
+  
+  return newStr;
+}
