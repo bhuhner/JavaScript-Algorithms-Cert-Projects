@@ -1,0 +1,12 @@
+function telephoneCheck(str) {
+  // check to make sure the string is of appropriate length to be a telephone number
+  if (str.length < 10 || str.length > 16) {
+    return false;
+  } else {
+    // start with opt'nal 1 & (opt'nal) space, then 3 digits, either in () or not, then an opt'nal hyphen or space, then 3 digits, then an opt'nal hyphen or space, then end with 4 digits
+    let regexRule = /^(1\s?)?(\(\d{3}\)|\d{3})[\-\s]?\d{3}[\-\s]?\d{4}$/;
+    return regexRule.test(str);
+  }
+}
+
+telephoneCheck("555-555-5555");
