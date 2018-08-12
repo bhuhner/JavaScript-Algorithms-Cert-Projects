@@ -12,17 +12,20 @@ function checkCashRegister(price, cash, cid) {
   // round properly
   var rdCashInDrawer = Math.round(cashInDrawer * 100) / 100;
   
-  // error messages & returns of denominations
+  var messageOut = {status: null, change: []};
+
   if (dueBack > rdCashInDrawer) {
-    return {status: "INSUFFICIENT_FUNDS", change: []};
+    messageOut.status = "INSUFFICIENT_FUNDS";
+    return messageOut;
+
   } else if (dueBack === rdCashInDrawer) {
-      return {status: "CLOSED", change: cid};
+      messageOut.status = "CLOSED";
+      messageOut.change = cid;
+      return messageOut;
   } else {
     return {status: "INSUFFICIENT_FUNDS", change: []};
   }
-  
-  /* current issue: need to make sure that available cash in drawer allows for proper return 
-  of change, can't only check that there's more in the drawer than what's due 
-  (ex: if $0.50 is due back, but you only have a $1 bill, you have enough money, but you don't
-  have the right denomination of money to make change) */
+
+  var messageOut = { status: null, change: []};
 }
+
