@@ -9,23 +9,66 @@ function checkCashRegister(price, cash, cid) {
      cashInDrawer += cid[i][1];
   }
   
-  // round properly
-  var rdCashInDrawer = Math.round(cashInDrawer * 100) / 100;
   
+  // array of denominations to reduce & return
+  var denomArrObj = [
+    { name: "ONE HUNDRED", val: 100},
+    { name: "TWENTY", val: 20},
+    { name: "TEN", val: 10},
+    { name: "FIVE", val: 5},
+    { name: "ONE", val: 1},
+    { name: "QUARTER", val: 0.25},
+    { name: "DIME", val: 0.10},
+    { name: "NICKEL", val: 0.05},
+    { name: "PENNY", val: 0.01}
+  ];
+  
+  // default message out
   var messageOut = {status: null, change: []};
 
-  if (dueBack > rdCashInDrawer) {
+  var register = cid.reduce(function(acc, item) {
+    acc.total += item[1];
+    acc[item[0]] = item[1];
+    return acc;
+  }, { total: 0 });
+
+  if (dueBack > register.total) {
     messageOut.status = "INSUFFICIENT_FUNDS";
     return messageOut;
+  } 
 
-  } else if (dueBack === rdCashInDrawer) {
-      messageOut.status = "CLOSED";
-      messageOut.change = cid;
-      return messageOut;
-  } else {
-    return {status: "INSUFFICIENT_FUNDS", change: []};
+  if (dueBack === register.total) {
+    messageOut.status = "CLOSED";
+    messageOut.change = cid;
+    return messageOut;
+  } 
+  
+  var changeArr = denomArrObj.reduce(function(acc, item) {
+      var value = 0;
+
+      while (register[item.name] > 0 && dueBack >= item.val) {
+        dueBack -= item.val;
+        register[item.name] -= item.val;
+        value += item.val;
+
+        cashInDrawer = Math.round(cashInDrawer * 100) / 100;
+      }
+
+      if (value > 0) {
+        acc.push([ item.name, value ]);
+      }
+
+      return acc;
+    }, []);
+
+  if (changeArr.length < 1 || dueBack > 0) {
+    messageOut.status = "INSUFFICIENT_FUNDS";
+    return messageOut;
   }
 
-  var messageOut = { status: null, change: []};
+  messageOut.status = "OPEN";
+  messageOut.change = changeArr;
+  return messageOut;
 }
 
+// still an issue outputting proper change and not empty array in certain settings
