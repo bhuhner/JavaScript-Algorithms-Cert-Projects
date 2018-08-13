@@ -56,20 +56,22 @@ function checkCashRegister(price, cash, cid) {
         // make sure it's not too big of a bill/coin to be useful
         if (cid[cid.length-j][1] <= dueBack) {
         
-          // if you've reached the pennies of cid arrayand there's still money there, but less than what's due back, then say you don't have enough money and stop
+          // if you've reached the pennies of cid arrayand there's still money there, 
+          // but less than what's due back, then say you don't have enough money and stop
           if (j === cid.length) {
             messageOut = makeMessageOut("INSUFFICIENT_FUNDS", changeArr);
             break;
           }
           
-          // 
+          // update the changeArr
           changeArr.unshift(cid[cid.length-j]);
           
           // update what's due back
           dueBack = Math.round((dueBack - changeArr[0][1]) * 100)/100;
         } else {
+          
+          // update the changeArr
           var numCoins = Math.floor(dueBack/(denoms[denoms.length-j][1]));
-
           if (numCoins != 0) {
             var tempAmt = Math.round((numCoins * denoms[denoms.length-j][1]) * 100) / 100;
             changeArr.unshift([cid[cid.length-j][0], tempAmt]);
@@ -77,12 +79,14 @@ function checkCashRegister(price, cash, cid) {
           }
         }
       }
-
+      
+      // stop the process once what is due back is down to 0
       if (dueBack <= 0) {
         break;
       }
     }
-
+    
+    // if changeArr was never populated, that means the right change isn't in the drawer, so error
     if (changeArr[0] === undefined) {
       messageOut = makeMessageOut("INSUFFICIENT_FUNDS", changeArr);
     } else {
@@ -90,6 +94,5 @@ function checkCashRegister(price, cash, cid) {
       messageOut = makeMessageOut("OPEN", changeArr);
     }
   }
-
   return messageOut;
 }
