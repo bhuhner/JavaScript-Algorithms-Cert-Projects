@@ -1,6 +1,18 @@
 function checkCashRegister(price, cash, cid) {
   // find out how much is due back
   var dueBack = cash - price;
+
+  var denoms = [
+    ["PENNY", 0.01], 
+    ["NICKEL", 0.05], 
+    ["DIME", 0.1], 
+    ["QUARTER", 0.25], 
+    ["ONE", 1], 
+    ["FIVE", 5], 
+    ["TEN", 10], 
+    ["TWENTY", 20], 
+    ["ONE HUNDRED", 100]
+  ];
   
   // find out how much is in the drawer
   var cashInDrawer = 0;
@@ -8,67 +20,76 @@ function checkCashRegister(price, cash, cid) {
   for (let i = 0; i < cid.length; i++) {
      cashInDrawer += cid[i][1];
   }
-  
-  
-  // array of denominations to reduce & return
-  var denomArrObj = [
-    { name: "ONE HUNDRED", val: 100},
-    { name: "TWENTY", val: 20},
-    { name: "TEN", val: 10},
-    { name: "FIVE", val: 5},
-    { name: "ONE", val: 1},
-    { name: "QUARTER", val: 0.25},
-    { name: "DIME", val: 0.10},
-    { name: "NICKEL", val: 0.05},
-    { name: "PENNY", val: 0.01}
-  ];
-  
-  // default message out
-  var messageOut = {status: null, change: []};
+  cashInDrawer = Math.round(cashInDrawer * 100) / 100;
 
-  var register = cid.reduce(function(acc, item) {
-    acc.total += item[1];
-    acc[item[0]] = item[1];
-    return acc;
-  }, { total: 0 });
+  // default empty message out
+  var messageOut = {};
 
-  if (dueBack > register.total) {
-    messageOut.status = "INSUFFICIENT_FUNDS";
-    return messageOut;
-  } 
-
-  if (dueBack === register.total) {
-    messageOut.status = "CLOSED";
-    messageOut.change = cid;
-    return messageOut;
-  } 
-  
-  var changeArr = denomArrObj.reduce(function(acc, item) {
-      var value = 0;
-
-      while (register[item.name] > 0 && dueBack >= item.val) {
-        dueBack -= item.val;
-        register[item.name] -= item.val;
-        value += item.val;
-
-        cashInDrawer = Math.round(cashInDrawer * 100) / 100;
-      }
-
-      if (value > 0) {
-        acc.push([ item.name, value ]);
-      }
-
-      return acc;
-    }, []);
-
-  if (changeArr.length < 1 || dueBack > 0) {
-    messageOut.status = "INSUFFICIENT_FUNDS";
-    return messageOut;
+  // a function which will populate the message out
+  function makeMessageOut(status, changeArrOutput) {
+    return {
+      status: status,
+      change: changeArrOutput
+    };
   }
 
-  messageOut.status = "OPEN";
-  messageOut.change = changeArr;
+  // default blank array for output change (to be populated, or not)
+  var changeArr = [];
+
+  // the case where you don't have enough cash in drawer
+  if (dueBack > cashInDrawer) {
+    messageOut = makeMessageOut("INSUFFICIENT_FUNDS", changeArr);
+  } 
+
+  // the case where you have exactly the right amount of change
+  else if (dueBack === cashInDrawer) {
+    messageOut = makeMessageOut("CLOSED", cid);
+  } 
+  
+  // enough to make change, need to calculate what change to give
+  else {
+    for (let j = 1; j <= cid.length; j++) {
+      
+      // check if input cid has something for a particular denomination, starting with the end of the cid array (100s)
+      if (cid[cid.length-j][1] !== 0) {
+        
+        // make sure it's not too big of a bill/coin to be useful
+        if (cid[cid.length-j][1] <= dueBack) {
+        
+          // if you've reached the pennies of cid arrayand there's still money there, but less than what's due back, then say you don't have enough money and stop
+          if (j === cid.length) {
+            messageOut = makeMessageOut("INSUFFICIENT_FUNDS", changeArr);
+            break;
+          }
+          
+          // 
+          changeArr.unshift(cid[cid.length-j]);
+          
+          // update what's due back
+          dueBack = Math.round((dueBack - changeArr[0][1]) * 100)/100;
+        } else {
+          var numCoins = Math.floor(dueBack/(denoms[denoms.length-j][1]));
+
+          if (numCoins != 0) {
+            var tempAmt = Math.round((numCoins * denoms[denoms.length-j][1]) * 100) / 100;
+            changeArr.unshift([cid[cid.length-j][0], tempAmt]);
+            dueBack = Math.round((dueBack - changeArr[0][1]) * 100) / 100;
+          }
+        }
+      }
+
+      if (dueBack <= 0) {
+        break;
+      }
+    }
+
+    if (changeArr[0] === undefined) {
+      messageOut = makeMessageOut("INSUFFICIENT_FUNDS", changeArr);
+    } else {
+      changeArr.reverse();
+      messageOut = makeMessageOut("OPEN", changeArr);
+    }
+  }
+
   return messageOut;
 }
-
-// still an issue outputting proper change and not empty array in certain settings
